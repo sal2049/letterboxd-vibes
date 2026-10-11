@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 580" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Letterboxd Vibes: system design</title>
+  <desc id="d">Six pipeline steps turn a Hugging Face dump of Letterboxd reviews into a JSON file that a static web app reads. Names are stripped from the reviews, an embedding model reads what is left, a clustering model groups the films, and a language model proposes a name for each group from its evidence.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .step { fill: #f6f7f9; stroke: #c9ced6; stroke-width: 1.2; }
+      .focus { fill: #eef4ff; stroke: #3987e5; stroke-width: 1.5; }
+      .store { fill: #ffffff; stroke: #c9ced6; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .ext { fill: #fff7ed; stroke: #d98a3d; stroke-width: 1.2; }
+      .stage { fill: #ffffff; stroke: #3987e5; stroke-width: 1; }
+      .h { font-size: 13.5px; font-weight: 600; fill: #111827; }
+      .s { font-size: 11.5px; fill: #4b5563; }
+      .f { font-size: 10.5px; fill: #374151; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .n { font-size: 11px; font-weight: 700; fill: #3987e5; }
+      .who { font-size: 10px; font-weight: 700; fill: #b45309; letter-spacing: 0.05em; }
+      .cap { font-size: 11px; font-weight: 600; fill: #6b7280; letter-spacing: 0.06em; }
+      .line { stroke: #6b7280; stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #9ca3af; stroke-width: 1; fill: none; stroke-dasharray: 3 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1040" height="580" rx="10"/>
+
+  <text class="cap" x="24" y="34">WHAT COMES FROM OUTSIDE</text>
+  <rect class="ext" x="24" y="46" width="160" height="62" rx="8"/>
+  <text class="h" x="36" y="70">Letterboxd dump</text>
+  <text class="s" x="36" y="90">847k films, 1.1 GB</text>
+  <rect class="ext" x="376" y="46" width="160" height="62" rx="8"/>
+  <text class="h" x="388" y="70">Embedding model</text>
+  <text class="s" x="388" y="90">runs locally</text>
+  <rect class="ext" x="552" y="46" width="160" height="62" rx="8"/>
+  <text class="h" x="564" y="70">Language model</text>
+  <text class="s" x="564" y="90">runs locally, names only</text>
+  <rect class="ext" x="728" y="46" width="136" height="62" rx="8"/>
+  <text class="h" x="740" y="70">TMDB API</text>
+  <text class="s" x="740" y="90">posters, build time</text>
+
+  <text class="cap" x="24" y="150">PIPELINE</text>
+  <rect class="step" x="24" y="162" width="160" height="92" rx="8"/>
+  <text class="n" x="36" y="184">00 + 01</text>
+  <text class="h" x="36" y="204">Download, extract</text>
+  <text class="s" x="36" y="223">clean, language-check,</text>
+  <text class="s" x="36" y="239">keep most-discussed</text>
+  <rect class="step" x="200" y="162" width="160" height="92" rx="8"/>
+  <text class="n" x="212" y="184">02</text>
+  <text class="h" x="212" y="204">Strip names</text>
+  <text class="s" x="212" y="223">people, places, titles,</text>
+  <text class="s" x="212" y="239">by rules on the data</text>
+  <rect class="step" x="376" y="162" width="160" height="92" rx="8"/>
+  <text class="n" x="388" y="184">03</text>
+  <text class="h" x="388" y="204">Embed reviews</text>
+  <text class="s" x="388" y="223">one vector per review,</text>
+  <text class="s" x="388" y="239">resumable shards</text>
+  <rect class="focus" x="552" y="162" width="160" height="92" rx="8"/>
+  <text class="n" x="564" y="184">04</text>
+  <text class="h" x="564" y="204">Build map</text>
+  <text class="s" x="564" y="223">pool, group, lay out,</text>
+  <text class="s" x="564" y="239">colour, name</text>
+  <rect class="step" x="728" y="162" width="136" height="92" rx="8"/>
+  <text class="n" x="740" y="184">05</text>
+  <text class="h" x="740" y="204">Add posters</text>
+  <text class="s" x="740" y="223">title + year match,</text>
+  <text class="s" x="740" y="239">cached on disk</text>
+  <rect class="step" x="880" y="162" width="136" height="92" rx="8"/>
+  <text class="n" x="892" y="184">web/</text>
+  <text class="h" x="892" y="204">Map UI</text>
+  <text class="s" x="892" y="223">React + deck.gl,</text>
+  <text class="s" x="892" y="239">static, no backend</text>
+
+  <path class="line" d="M104 108V160"/>
+  <path class="line" d="M456 108V160"/>
+  <path class="line" d="M632 108V160"/>
+  <path class="line" d="M796 108V160"/>
+  <path class="line" d="M184 208H198"/>
+  <path class="line" d="M360 208H374"/>
+  <path class="line" d="M536 208H550"/>
+  <path class="line" d="M712 208H726"/>
+  <path class="line" d="M864 208H878"/>
+
+  <text class="cap" x="24" y="296">WHAT EACH STEP WRITES</text>
+  <rect class="store" x="24" y="308" width="160" height="44" rx="6"/>
+  <text class="f" x="34" y="327">data/reviews_en/</text>
+  <text class="s" x="34" y="343">Parquet shards</text>
+  <rect class="store" x="200" y="308" width="160" height="44" rx="6"/>
+  <text class="f" x="210" y="327">outputs/vocabulary_en</text>
+  <text class="s" x="210" y="343">every removed word</text>
+  <rect class="store" x="376" y="308" width="160" height="44" rx="6"/>
+  <text class="f" x="386" y="327">data/embeddings_en/</text>
+  <text class="s" x="386" y="343">kept per model</text>
+  <rect class="store" x="552" y="308" width="160" height="44" rx="6"/>
+  <text class="f" x="562" y="327">outputs/groups_en.md</text>
+  <text class="s" x="562" y="343">evidence + audit</text>
+  <rect class="store" x="728" y="308" width="288" height="44" rx="6"/>
+  <text class="f" x="738" y="327">web/public/data/movies_en.json</text>
+  <text class="s" x="738" y="343">points, groups, colours, quotes, neighbours</text>
+
+  <path class="thin" d="M104 254V306"/>
+  <path class="thin" d="M280 254V306"/>
+  <path class="thin" d="M456 254V306"/>
+  <path class="thin" d="M632 254V306"/>
+  <path class="thin" d="M796 254V306"/>
+  <path class="thin" d="M948 306V256"/>
+
+  <text class="cap" x="24" y="396">INSIDE STEP 04, AND WHAT DECIDES EACH PART</text>
+  <rect class="focus" x="24" y="408" width="992" height="148" rx="8"/>
+  <rect class="stage" x="40" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="52" y="446">1  POOL</text>
+  <text class="s" x="52" y="466">mean of a film's</text>
+  <text class="s" x="52" y="482">review vectors</text>
+  <text class="who" x="52" y="524">ARITHMETIC</text>
+  <path class="line" d="M166 472H178"/>
+  <rect class="stage" x="180" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="192" y="446">2  SUBTRACT</text>
+  <text class="s" x="192" y="466">year, popularity,</text>
+  <text class="s" x="192" y="482">rating and genre</text>
+  <text class="s" x="192" y="498">regressed out</text>
+  <text class="who" x="192" y="524">RIDGE REGRESSION</text>
+  <path class="line" d="M306 472H318"/>
+  <rect class="stage" x="320" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="332" y="446">3  GROUP</text>
+  <text class="s" x="332" y="466">films whose reviews</text>
+  <text class="s" x="332" y="482">read alike</text>
+  <text class="who" x="332" y="524">CLUSTERING MODEL</text>
+  <path class="line" d="M446 472H458"/>
+  <rect class="stage" x="460" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="472" y="446">4  DRAW</text>
+  <text class="s" x="472" y="466">2-D positions,</text>
+  <text class="s" x="472" y="482">for display only</text>
+  <text class="who" x="472" y="524">UMAP</text>
+  <path class="line" d="M586 472H598"/>
+  <rect class="stage" x="600" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="612" y="446">5  COLOUR</text>
+  <text class="s" x="612" y="466">hue from position,</text>
+  <text class="s" x="612" y="482">so neighbours</text>
+  <text class="s" x="612" y="498">look alike</text>
+  <text class="who" x="612" y="524">FORMULA</text>
+  <path class="line" d="M726 472H738"/>
+  <rect class="stage" x="740" y="426" width="126" height="112" rx="6"/>
+  <text class="n" x="752" y="446">6  EVIDENCE</text>
+  <text class="s" x="752" y="466">over-used words,</text>
+  <text class="s" x="752" y="482">central films,</text>
+  <text class="s" x="752" y="498">closest reviews</text>
+  <text class="who" x="752" y="524">COUNTING</text>
+  <path class="line" d="M866 472H878"/>
+  <rect class="stage" x="880" y="426" width="120" height="112" rx="6"/>
+  <text class="n" x="892" y="446">7  NAME</text>
+  <text class="s" x="892" y="466">short name and</text>
+  <text class="s" x="892" y="482">one line, written</text>
+  <text class="s" x="892" y="498">from the evidence</text>
+  <text class="who" x="892" y="524">LANGUAGE MODEL</text>
+</svg>
