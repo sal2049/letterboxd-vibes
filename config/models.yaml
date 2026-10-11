@@ -1,0 +1,17 @@
+# Embedding models compared by scripts/benchmark_embeddings.py.
+# `prompt_name` selects a prefix the model ships with; `prompt` is literal text
+# put in front of every input, taken from each model's own usage notes.
+
+unsloth/embeddinggemma-2:
+  prompt_name: Clustering          # "task: clustering | query: "
+
+sentence-transformers/all-MiniLM-L6-v2: {}
+
+thenlper/gte-base: {}
+
+BAAI/bge-base-en-v1.5: {}
+
+intfloat/e5-base-v2:
+  prompt: "query: "
+
+Qwen/Qwen3-Embedding-0.6B: {}
