@@ -1,0 +1,49 @@
+# Shared settings. config/<lang>.yaml overrides any key for that track.
+
+dataset:
+  repo: PratikDhonde/letterboxd-all-movie-data
+  file: full_dump.jsonl
+
+extract:
+  min_review_chars: 40
+  lang_confidence: 0.85
+  min_reviews_per_film: 3
+  # Keep the N most-discussed films (by total likes on their reviews). This only
+  # decides which films are on the map; it is regressed out before clustering.
+  max_films: 10000
+  shard_rows: 5000
+
+masking:
+  # A word is kept only if reviews of at least this many films use it.
+  min_films: 20
+  # A word written with a capital more often than this (mid-sentence) is a name.
+  capital_share: 0.5
+  # This many billed cast members have their names removed from a film's own reviews.
+  top_billed: 20
+  # ...unless reviews of more than this share of all films use the word anyway.
+  everyday_share: 0.1
+  # Reviews with fewer words than this left are dropped: one-liners say little
+  # about the film (see the review-length table in the README).
+  min_words: 12
+
+embedding:
+  # Chosen by scripts/benchmark_embeddings.py; its input prefix is in models.yaml.
+  model: thenlper/gte-base
+  max_tokens: 256
+  batch_size: 32
+
+map:
+  # Dataset columns regressed out of the film vectors before clustering, so the
+  # groups cannot simply be eras, hits, well-rated films or genre shelves.
+  deconfound: [year, popularity, rating, genre]
+  # Any name from letterboxd_vibes.clustering.ALGORITHMS. Chosen from
+  # outputs/benchmark_clustering_en.md.
+  cluster_method: spectral
+  n_clusters: 40
+  umap_n_neighbors: 30
+  umap_min_dist: 0.1
+
+naming:
+  # A local chat model that names each group from its evidence (needs the
+  # `naming` extra, Apple Silicon). Leave empty to name groups by their words.
+  model: mlx-community/gemma-3-4b-it-qat-4bit
