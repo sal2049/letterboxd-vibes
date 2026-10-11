@@ -8,6 +8,16 @@ This project reads Letterboxd reviews of 9,211 films, removes the names from the
 
 It is not a recommender and nothing in it is ranked. The groups are found by a clustering model, not defined in advance, and each group's theme label ("Slow, atmospheric haunted house dramas", "Existential loneliness and fading memories") is a language model's reading of the evidence shown next to it. [Who decides what](#who-decides-what) lists every choice a person did make.
 
+## Key findings
+
+1. **Raw reviews cluster by names, not by feel.** Embed reviews as written and the groups are Disney, Batman, Godzilla, Bollywood, Kurosawa, Clint Eastwood. Deleting names with three counting rules, and no block list, changes what the groups are about.
+2. **An embedding model can be scored without labels.** Split a film's reviews in two and check that the halves land near each other. On that test gte-base came first of six, and EmbeddingGemma 2, a newer and larger model, came fifth, level with a model a tenth its size.
+3. **Neighbour-graph clustering is twice as stable as k-means here.** Spectral clustering scores 0.43 on resampling stability, Leiden 0.38, k-means 0.21. HDBSCAN finds three groups and leaves 46% of the films out, because the films form one cloud with no gaps.
+4. **Long reviews are worth far more than short ones.** With the number of reviews held at four per film, agreement is 0.77 for reviews of 12 or more words and 0.89 for 50 or more. A quarter of all reviews (26%) had fewer than 12 words left after stripping and were dropped.
+5. **Stripping names and removing metadata do different jobs.** Names stripped but nothing regressed out, groups still track genre at 0.27 (Cramér's V). With year, popularity, rating and genre regressed out it falls to 0.12.
+6. **The groups cut across genre.** In 28 of the 40, no single genre covers 60% of the films. The group labelled "Profound emotional experiences and grief" has *The Tigger Movie*, *Grave of the Fireflies*, *Coco*, *Schindler's List* and *Dancer in the Dark* in it.
+7. **Groups are reliable; single films are not.** The films at a group's centre fit its label. A famous film whose surviving reviews are jokes can land anywhere: *Shrek* sits under "intense sexual desire" because of a joke about Donkey and Dragon.
+
 ## Why remove the names
 
 An embedding model given a raw review mostly notices who and what it mentions. Cluster the films on raw reviews and the groups are a database: Disney, Batman, Godzilla, Bollywood, Kurosawa, the Beatles, Clint Eastwood, Christmas (the full list is under [What did not work](#what-did-not-work)). None of that needs reviews; it is already in the metadata.
@@ -203,6 +213,36 @@ The dump keeps each film's most-liked reviews, and on Letterboxd those are often
 
 Agreement rises steadily with length. Four 50-word reviews place a film better than four 12-word ones by a wide margin. The cut-off of 12 words is a trade, not an optimum: 20 would be more reliable but would leave about half the films with too few reviews, including most of the best-known ones. (This table was measured on EmbeddingGemma 2 vectors, the last run that embedded reviews of every length.)
 
+## What turned up in the groups
+
+Read from `outputs/groups_en.md` and the map; the numbers are group means from the dataset's own columns.
+
+**Reactions that ignore genre.**
+- *Crying is a place on the map.* Around *The Broken Circle Breakdown* sit *The Tigger Movie*, *Grave of the Fireflies*, *Coco*, *Up*, *Schindler's List*, *Moonlight* and *Aftersun*: a children's cartoon, a war film and a Holocaust drama, joined by reviews about being in tears.
+- *Brutality spans documentary and horror.* *Snowtown*, *Scum*, *The Act of Killing*, *Sugarcane* and *Guinea Pig: Devil's Experiment* share a group: 50% drama, 26% thriller, 25% comedy, 23% horror, from 1969 to 2024.
+- *Warmth spans countries and forms.* A Japanese family drama (*Our Little Sister*), a Tamil comedy (*Thiruchitrambalam*), two Agnès Varda documentaries and a Scottish comedy (*Local Hero*).
+- *The haunted-house group runs from 1944 to 2024* (*The Uninvited* to *Oddity*), which is what regressing out the year allows.
+
+**The map has neighbourhoods.** Grief, faith, warmth and loneliness sit together. So do haunted houses, brutality, power and politics. Women's stories, queer identity, desire and thirst form another region. The small subgenre groups (slashers, zombies, martial arts, sport, cars, sequels, remakes) cluster on one edge.
+
+**How people write tracks how much they liked it, even with rating regressed out.** The dataset's mean rating is 3.37. The group of angry pans averages 3.07, sequels 2.82, remakes 2.90, shark films 2.52. "Existential loneliness and fading memories" averages 3.58.
+
+**Sequels and remakes are groups of their own.** They are not a genre (the sequels group is 40% action at most). What their reviews share is talk about "the original", so the method groups them by a relation between films.
+
+**Some groups describe the reviewers.** Angry pans, reviews about how attractive someone is, and a copy-pasted joke ("if you read this I'm free on Thursday") each pull films together by how the review is written. That is the method doing what it was asked on a site where the most-liked reviews are often performances.
+
+**Irony reads as sincerity.** *Sharknado* is in the grief group because a review says "OH MY GOSH!! This is the best thing I have ever seen." *Come and See* is under "joyful, over-the-top entertainment" on the strength of a review calling it the best film ever made and a joke about enlisting in the army. An embedding takes both at face value.
+
+**Where famous films landed well.** *Jaws* with the shark films, *Get Out* under racial dynamics and prejudice, *12 Years a Slave* under brutal depictions of suffering, *Hereditary* under disturbing family dynamics, *Barbie* under female experiences and resistance, *The Room* under over-the-top entertainment.
+
+**Tight subgenres come back.** Year and genre are regressed out, and still one group is 100% horror and 86% pre-1980 (giallo), and another is 98% horror with a median year of 1987 (slashers). A linear regression on the dataset's genre labels cannot remove a subgenre that has its own vocabulary.
+
+**Small groups are tight, large ones are loose.** The 19 shark films have a cohesion of 0.57; the 414 films under "visually intense, psychedelic storytelling" have 0.27. The big groups are closer to regions than to themes.
+
+**It is not only films.** Stand-up specials form a group, and so do TV episodes (median year 2020, the highest-rated group at 3.77). The dump contains everything Letterboxd lists.
+
+**Some famous films are missing.** 37 of the 200 most-discussed films are not on the map, among them *Oppenheimer*, *Challengers*, *The Substance* and *Anatomy of a Fall*: fewer than three of their top reviews run to 12 words.
+
 ## What did not work
 
 - **Embedding the reviews as written.** Forty groups on raw review vectors (EmbeddingGemma 2, Leiden) come out as: Disney and Pixar; Lindsay Lohan and Zac Efron; Clint Eastwood; Jackie Chan and Steven Seagal; Bergman and Herzog; Vincent Price; Adam Sandler; Woody Allen; Godzilla; Batman and the MCU; Godard and Varda; Bollywood; Kurosawa and Ozu; Pacino and De Niro; Christmas; Jake Gyllenhaal; giallo; David Lynch. Their association with decade, genre, rating and popularity is 0.22, 0.25, 0.30 and 0.16. Regressing out metadata lowers those numbers and leaves the groups about the same people, because an actor's name is not a column of the dataset.
@@ -260,15 +300,31 @@ docs/                    architecture diagram, screenshot
 outputs/                 benchmark tables, audit numbers, removed vocabulary, the group sheet
 ```
 
-## Limits
+## Open problems
 
-- **Thin evidence per film.** The dump holds at most ten reviews per film, and after the length cut a film has five or six on average. Split-half agreement is well above chance but far from 1: a film's position is a noisy estimate. The films nearest a group's centre fit its name well; a famous film whose surviving reviews are jokes can land somewhere odd. More reviews per film is the one thing that would most improve this map.
-- **Labels are a reading.** The naming model sees twelve film titles, eight reviews and a handful of words. It can overreach, and it knows films from its own training, so a label can say more than the reviews do. It is also a small model: some labels are stiff, and groups that are really about how people review (angry pans, jokes) get labels that describe the reviews, not the films. The evidence is always shown beside each one.
-- **Leaky name-stripping.** Names that people write in lower case and that are not in the film's own credits get through, as do two-letter names. So do Letterboxd memes: one group's top words include "free thursday", from a joke people paste under many films ("if you read this I'm free on Thursday").
-- **Topics are still there.** Stripping names does not strip subjects. Some groups are about what films contain (sharks, food, sport) more than how they feel. Genre is regressed out, but a subject is not a genre label.
-- **Unfiltered language.** The words and quotes shown for a group are whatever its reviews contain, including swearing.
-- **Soft groups.** Stability is 0.43 on a scale where 1.0 means identical groups on every resample. Films near a boundary can move.
-- **One audience.** Letterboxd skews young, English-speaking and cinephile. The map shows how that audience talks.
+- **Thin, joke-heavy evidence.** At most ten reviews per film in the dump, five or six after the length cut, and they are the most-liked ones. This limits everything else on the list.
+- **Irony.** Sarcastic praise and sincere praise embed the same way.
+- **Review style against film content.** Several groups are about how reviews are written. Nothing in the method separates "what the film is like" from "how this crowd performs a review".
+- **Subjects survive.** Stripping names removes who, not what. Sharks, sport and cars each form a group.
+- **Linear removal only.** Regressing out genre removes its linear trace. Subgenres with their own vocabulary come back.
+- **One group per film.** A film gets exactly one theme. Real films have several, and the borders between groups are arbitrary: stability is 0.43 where 1.0 would mean the same groups on every resample.
+- **Forty is a choice.** The number of groups was set by hand, and the large groups are loose.
+- **Labels are unevaluated.** They are a small model's reading of twelve titles, eight reviews and a few words. It knows the films from its own training, so a label can say more than the reviews do, and some are stiff.
+- **Leaky, untuned masking.** Lower-case names of people outside a film's own credits get through, as do two-letter names. The three thresholds were set by judgment.
+- **The benchmark's resolution.** The top three embedding models are within 0.02 of each other on 1,500 films, with no confidence interval. Split-half agreement also rewards consistency of any kind, which is why names and genre are removed before scoring.
+- **Unfiltered language.** Words and quotes are shown as written, swearing included.
+- **One audience, one language.** Letterboxd skews young, English-speaking and cinephile.
+
+## What to improve next
+
+1. **Get more text per film.** A fuller source of reviews, chosen for length instead of likes. Agreement at 50-word reviews (0.89) shows what the method can do when it is fed.
+2. **Several themes per film.** Keep each film's three nearest group centres with their similarities, the way Letterboxd lists themes, instead of one hard assignment.
+3. **Two levels.** Cluster into a few broad regions, then again inside each, so broad and specific themes both exist and the number 40 stops mattering.
+4. **Evaluate the labels.** An intrusion test (can a person spot the film that does not belong under a label?), a stronger model as judge checked against a hand-marked sample, and a run that labels without film titles to measure how much the labeller leans on what it already knows.
+5. **Separate style from content.** Flag reviews that are jokes or performances before pooling, for example by how far a review sits from the rest of its film's reviews, and see whether the reviewer groups dissolve.
+6. **Put error bars on the benchmarks.** Bootstrap over films, and tune the masking thresholds on films held out from the reported numbers.
+7. **Scale up.** All 168,284 eligible films, with an approximate nearest-neighbour index and Leiden on the neighbour graph in place of spectral clustering.
+8. **Posters and a hosted demo.** The TMDB step exists but has not been run with a key.
 
 ## Data and credits
 
