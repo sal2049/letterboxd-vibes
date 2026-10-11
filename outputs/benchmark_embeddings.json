@@ -1,0 +1,50 @@
+[
+  {
+    "model": "thenlper/gte-base",
+    "dimensions": 768,
+    "agreement": 0.906,
+    "top10": 0.383,
+    "agreement_without_genre": 0.876,
+    "reviews_per_second": 55
+  },
+  {
+    "model": "intfloat/e5-base-v2",
+    "dimensions": 768,
+    "agreement": 0.902,
+    "top10": 0.361,
+    "agreement_without_genre": 0.868,
+    "reviews_per_second": 49
+  },
+  {
+    "model": "Qwen/Qwen3-Embedding-0.6B",
+    "dimensions": 1024,
+    "agreement": 0.906,
+    "top10": 0.404,
+    "agreement_without_genre": 0.854,
+    "reviews_per_second": 9
+  },
+  {
+    "model": "BAAI/bge-base-en-v1.5",
+    "dimensions": 768,
+    "agreement": 0.903,
+    "top10": 0.358,
+    "agreement_without_genre": 0.85,
+    "reviews_per_second": 52
+  },
+  {
+    "model": "unsloth/embeddinggemma-2",
+    "dimensions": 768,
+    "agreement": 0.878,
+    "top10": 0.299,
+    "agreement_without_genre": 0.832,
+    "reviews_per_second": 18
+  },
+  {
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "dimensions": 384,
+    "agreement": 0.881,
+    "top10": 0.337,
+    "agreement_without_genre": 0.831,
+    "reviews_per_second": 345
+  }
+]
